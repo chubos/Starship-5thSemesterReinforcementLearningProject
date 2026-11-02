@@ -2,7 +2,7 @@
 \input{article_style.tex}
 
 \title{Raport projektowy\\Uczenie się ze wzmocnieniem}
-\author{Imię i nazwisko studenta}
+\author{Hubert Lech}
 \date{2026/2027}
 
 \begin{document}
@@ -17,12 +17,12 @@
 \toprule
 Element & Informacja \\
 \midrule
-Imię i nazwisko & Do uzupełnienia \\
-Numer albumu & Do uzupełnienia \\
-Kierunek/specjalność & Do uzupełnienia \\
-Tytuł projektu & Do uzupełnienia \\
-Link do repozytorium & \url{https://github.com/...} \\
-Data oddania & Do uzupełnienia \\
+Imię i nazwisko & Hubert Lech \\
+Numer albumu & 177827 \\
+Kierunek/specjalność & Informatyka / Sztuczna Inteligencja \\
+Tytuł projektu & Starship Lander \\
+Link do repozytorium & \url{https://github.com/chubos/Starship-5thSemesterReinforcementLearningProject} \\
+Data oddania & E1: 02.11.2026 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -31,88 +31,112 @@ Data oddania & Do uzupełnienia \\
 
 \subsection{Opis problemu}
 
-Należy krótko opisać problem rozwiązywany w~projekcie. 
-Opis powinien być zrozumiały bez czytania kodu źródłowego.
-
+Rozwiązywany problem dotyczy zagadnienia sterowania rakietą w~końcowej fazie lądowania. Inspiracją dla zadania jest profil manewru wykonywanego przez rakietę Starship, który polega na przejściu z poziomego spadania do pozycji pionowej tuż nad powierzchnią lądowiska. Ze względu na działanie sił grawitacji, oporu aerodynamicznego oraz ograniczeń mechanicznych układu napędowego, zadanie wymaga skoordynowanego sterowania siłą ciągu silnika głównego, kątem nachylenia dyszy (ang. \textit{Thrust Vector Control}, TVC) oraz momentami obrotowymi generowanymi przez stery aerodynamiczne i~silniczki manewrowe RCS.
 \subsection{Cel agenta}
-
-Należy wyjaśnić, co agent ma osiągnąć oraz kiedy jego działanie można uznać za poprawne lub skuteczne.
+Głównym celem agenta jest doprowadzenie rakiety z~losowego stanu początkowego (obejmującego znaczne przechylenie kadłuba, początkową prędkość opadania oraz odchylenie boczne) na wyznaczoną platformę lądowania. Przy skutecznym lądowaniu powinny zajść następujące warunki:
+\begin{itemize}
+    \item Przyziemienie następuje w~wyznaczonym promieniu platformy lądowania ($\Delta x \approx 0$).
+    \item Składowa pionowa prędkości przy kontakcie z~podłożem nie przekracza bezpiecznego progu ($|v_y| < 5.0\text{ m/s}$), a~prędkość pozioma jest bliska zeru ($|v_x| < 1.5\text{ m/s}$).
+    \item Odchylenie osi wzdłużnej kadłuba od pionu nie przekracza $10^\circ$.
+    \item Prędkość kątowa obiektu w~momencie kontaktu z~podłożem jest zredukowana niemal do zera ($|\omega_z| < 0.2\text{ rad/s}$), zapobiegając przewróceniu rakiety po lądowaniu.
+\end{itemize}
 
 \subsection{Uzasadnienie zastosowania uczenia się ze wzmocnieniem}
 
-Należy wyjaśnić, dlaczego problem można rozpatrywać jako problem uczenia się ze wzmocnieniem. W szczególności należy wskazać:
+Zastosowanie paradygmatu uczenia się ze wzmocnieniem jest uzasadnione ze względu na następujące właściwości zadania:
 \begin{itemize}
-    \item jakie decyzje są podejmowane sekwencyjnie,
-    \item w jaki sposób decyzje wpływają na przyszły stan środowiska,
-    \item dlaczego istotny jest wynik długoterminowy, a nie tylko natychmiastowa nagroda,
-    \item dlaczego zastosowanie agenta uczącego się jest uzasadnione.
+    \item \textbf{Sekwencyjność decyzji:} Agent steruje rakietą w~dyskretnych krokach czasowych z~częstotliwością decyzyjną $10\text{ Hz}$. Każda korekta kąta dyszy lub poziomu ciągu silnika nie rozwiązuje problemu natychmiast, lecz stanowi element dłuższej sekwencji sterującej prowadzącej do manewru obrotu i~hamowania.
+    \item \textbf{Wpływ decyzji na przyszły stan:} Zaaplikowanie siły ciągu w~danym kierunku bezpośrednio zmienia pęd liniowy oraz pęd kątowy obiektu. Ze względu na drugą zasadę dynamiki Newtona skutki decyzji kumulują się w~czasie, wpływając na trajektorię lotu w~kolejnych sekundach.
+    \item \textbf{Istotność wyniku długoterminowego:} Optymalna strategia wymaga zachowania oszczędności w~początkowej fazie lotu. Zbyt wczesne uruchomienie pełnego ciągu silnika prowadzi do wyczerpania paliwa lub zawiśnięcia na dużej wysokości, z~kolei zbyt późny zapłon uniemożliwia wyhamowanie masywnego kadłuba przed uderzeniem w~ziemię. Agent musi dokonać kompromisu między oszczędnością zasobów, a~bezpieczeństwem końcowym.
+    \item \textbf{Trudność metod analitycznych:} Klasyczne regulatory (np. liniowy PID) radzą sobie poprawnie z~utrzymaniem zadanego punktu pracy, lecz mają trudności przy gwałtownych, nieliniowych manewrach sprzężonych. Uczenie ze wzmocnieniem pozwala wygenerować nieliniową politykę sterowania prościej.
 \end{itemize}
 
 \section{Formalizacja problemu RL/MDP}
 
 \subsection{Agent i środowisko}
 
-Należy opisać agenta, środowisko oraz sposób ich interakcji. Warto wskazać, co dzieje się w jednym kroku epizodu.
-
+Problem został sformalizowany jako proces decyzyjny Markowa (MDP) w~czasie dyskretnym. 
+\begin{itemize}
+    \item \textbf{Środowisko:} Dwuwymiarowy model fizyczny oparty na silniku PhysX zaimplementowany w~Unity. Odpowiada za numeryczne całkowanie równań ruchu, symulację grawitacji ($g = 9.81\text{ m/s}^2$), sił aerodynamicznych, detekcję kolizji z~lądowiskiem oraz kalkulację funkcji nagrody.
+    \item \textbf{Agent:} Pokładowy układ sterowania rakietą, który na podstawie wektora obserwacji generuje ciągłe sygnały nastawcze dla siłowników.
+    \item \textbf{Pojedynczy krok interakcji:} Co $\Delta t = 0.1\text{ s}$ agent otrzymuje wektor obserwacji $s_t$, wybiera wektor akcji $a_t \in [-1, 1]^3$, środowisko aplikuje odpowiadające siły i~momenty do bryły sztywnej, po czym zwraca nowy stan $s_{t+1}$, nagrodę skalarną $r_t$ oraz flagę zakończenia epizodu $d_t$.
+\end{itemize}
 \subsection{Stan lub obserwacja}
-
-Należy opisać informacje dostępne dla agenta. Jeżeli agent nie obserwuje pełnego stanu środowiska, należy wyjaśnić różnicę między stanem środowiska a obserwacją agenta.
+Wektor obserwacji składa się z~10 ciągłych zmiennych fizycznych, znormalizowanych do przedziału o~zbliżonym rzędzie wielkości:
 
 \begin{center}
 \begin{tabular}{p{0.30\textwidth}p{0.60\textwidth}}
 \toprule
-Składowa stanu/obserwacji & Znaczenie \\
+Składowa stanu/obserwacji & Znaczenie i jednostka \\
 \midrule
-Do uzupełnienia & Do uzupełnienia \\
-Do uzupełnienia & Do uzupełnienia \\
-Do uzupełnienia & Do uzupełnienia \\
+$\Delta x$ & Względna pozycja pozioma względem środka platformy $[\text{m}]$ \\
+$\Delta y$ & Względna wysokość nad powierzchnią lądowiska $[\text{m}]$ \\
+$v_x$ & Prędkość liniowa w~osi poziomej $[\text{m/s}]$ \\
+$v_y$ & Prędkość liniowa w~osi pionowej $[\text{m/s}]$ \\
+$u_x = \sin(\theta)$ & Rzut wektora osi rakiety na oś poziomą (miara odchylenia) \\
+$u_y = \cos(\theta)$ & Rzut wektora osi rakiety na oś pionową ($1.0 = \text{pełny pion}$) \\
+$\omega_z$ & Prędkość kątowa kadłuba $[\text{rad/s}]$ \\
+$\phi_{\text{TVC}}$ & Aktualny kąt wychylenia dyszy silnika $[\text{rad}]$ \\
+$a_{t-1, \text{thrust}}$ & Poziom ciągu silnika z~poprzedniego kroku decyzyjnego \\
+$m_{\text{fuel}}$ & Znormalizowany pozostały zasób paliwa $[0.0, 1.0]$ \\
 \bottomrule
 \end{tabular}
 \end{center}
-
 \subsection{Akcje}
 
-Należy opisać zbiór akcji dostępnych dla agenta. 
-Jeżeli niektóre akcje są niedozwolone w~określonych stanach, 
-należy to wyjaśnić.
+Przestrzeń akcji $\mathcal{A}$ jest ciągła i~trójwymiarowa, zdefiniowana jako iloczyn kartezjański przedziałów $\mathcal{A} = [-1, 1]^3$. W~każdym stanie wszystkie akcje są formalnie dopuszczalne, jednak ich fizyczny wpływ jest ograniczony przez zapas paliwa oraz fizyczne nasycenie siłowników:
 
 \begin{center}
 \begin{tabular}{p{0.30\textwidth}p{0.60\textwidth}}
 \toprule
-Akcja & Opis \\
+Akcja & Opis i interpretacja fizyczna \\
 \midrule
-Do uzupełnienia & Do uzupełnienia \\
-Do uzupełnienia & Do uzupełnienia \\
-Do uzupełnienia & Do uzupełnienia \\
+$a_0 \in [-1, 1]$ & Nastawa ciągu silnika głównego. Wartość jest liniowo skalowana do przedziału $[0, 1]$: $T = \frac{a_0 + 1}{2} \cdot F_{\max}$. Wartość $-1$ oznacza wyłączony silnik, a~$+1$ maksymalny ciąg ($30\text{ kN}$). \\
+$a_1 \in [-1, 1]$ & Wychylenie wektora ciągu dyszy silnika (gimbal TVC). Odpowiada kątowi $\phi = a_1 \cdot \phi_{\max}$, gdzie $\phi_{\max} = 20^\circ$. \\
+$a_2 \in [-1, 1]$ & Moment obrotowy sterów manewrowych RCS/klap aerodynamicznych $\tau = a_2 \cdot \tau_{\max}$. Pozwala na bezpośrednią kontrolę orientacji kątowej. \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \subsection{Funkcja nagrody}
 
-Należy dokładnie opisać funkcję nagrody. Opis powinien zawierać nie tylko wzór lub kod, ale również uzasadnienie przyjętych wartości.
+Funkcja nagrody została zaprojektowana w~formie ważonej sumy kar za błędy stanu, nagród pomocniczych oraz nagród rzadkich za terminalny stan epizodu:
 
 \begin{equation}
-    r_t = \text{do uzupełnienia}
+    r_t = r_{\text{step}} + r_{\text{dist}} + r_{\text{orient}} + r_{\text{fuel}} + r_{\text{terminal}}
 \end{equation}
 
-W tej sekcji należy wyjaśnić:
+Poszczególne składniki funkcji nagrody definiuje się następująco:
+\begin{equation}
+    r_t = -0.002 - 0.001 \cdot \|\Delta \mathbf{p}\| + w_y \cdot \max(0, \cos\theta) \cdot 0.04 - 0.0005 \cdot T_{\text{norm}} + r_{\text{terminal}}
+\end{equation}
+gdzie $w_y = \min\left(1.0, \frac{35.0}{\max(\Delta y, 1.0)}\right)$ jest współczynnikiem wzmacniającym wagę pionizacji w~pobliżu gruntu, $\|\Delta \mathbf{p}\|$ jest odległością od środka platformy lądowania, $\theta$ jest kątem odchylenia kadłuba od pionu, a~$T_{\text{norm}}$ jest znormalizowanym poziomem ciągu silnika.
+
 \begin{itemize}
-    \item za co agent otrzymuje nagrodę dodatnią,
-    \item za co agent otrzymuje karę,
-    \item czy występuje kara za krok,
-    \item czy występują ograniczenia twarde lub miękkie,
-    \item czy nagroda nie zachęca agenta do niepożądanego zachowania.
+    \item \textbf{Nagroda dodatnia:} Agent otrzymuje wysoką nagrodę terminalną ($+150.0$) wyłącznie za poprawne przyziemienie na lądowisku z~niską prędkością pionową ($|v_y| < 5.0\text{ m/s}$) i~poprawną orientacją ($\cos\theta > 0.95$). Dodatkowo w~trakcie lotu nagradzana jest orientacja pionowa kadłuba.
+    \item \textbf{Kary:} Za uderzenie w~podłoże ze zbyt dużą prędkością przyznawana jest dotkliwa kara terminalna ($-30.0$), a~za uderzenie poza platformą lub ucieczkę poza dozwoloną przestrzeń: $-50.0$ do $-100.0$.
+    \item \textbf{Kara za krok:} Stała ujemna nagroda $-0.002$ na każdy krok zapobiega sytuacji, w~której agent zawisa w~powietrzu i~przedłuża epizod bez podejmowania próby lądowania.
+    \item \textbf{Ograniczenia twarde i miękkie:} Ograniczeniem miękkim jest kara za zużycie paliwa oraz odległość od osi lądowiska. Ograniczeniem twardym jest strefa dozwolonych pozycji: przekroczenie dopuszczalnego obszaru ($\Delta y > 150\text{ m}$ lub $|\Delta x| > 50\text{ m}$) natychmiast kończy epizod.
+    \item \textbf{Zapobieganie patologiom uczenia:} Nagroda za pionizację kadłuba jest warunkowana bliskością ziemi ($w_y$). W~przeciwnym wypadku agent mógłby natychmiast pionizować się na dużej wysokości i~opadać bez wykonania dynamicznego obrotu, co prowadziłoby do lokalnego optimum i~nadmiernego zużycia energii.
 \end{itemize}
 
 \subsection{Warunki zakończenia epizodu}
-
-Należy wskazać wszystkie sytuacje, w których epizod zostaje zakończony, np. osiągnięcie celu, kolizja, wyczerpanie energii, przekroczenie limitu kroków albo wejście w stan porażki.
+Epizod ulega przerwaniu i~zresetowaniu środowiska w~następujących przypadkach:
+\begin{enumerate}
+    \item \textbf{Udany kontakt z lądowiskiem (Sukces):} Dotknięcie podpór lądowiska z~parametrami spełniającymi bezpieczne normy przyziemienia.
+    \item \textbf{Katastrofalna kolizja (Porażka):} Uderzenie kadłubem o~ziemię, uderzenie z~prędkością przekraczającą limit wytrzymałości konstrukcji lub dotknięcie gruntu pod kątem większym niż $25^\circ$.
+    \item \textbf{Opuszczenie dozwolonej strefy lotu:} Odchylenie poziome $|\Delta x| > 50\text{ m}$ lub przekroczenie pułapu $y > 150\text{ m}$.
+    \item \textbf{Limit czasu:} Upłynięcie maksymalnej liczby kroków decyzyjnych ($T_{\max} = 1000$ kroków, tj. $100\text{ s}$ symulacji).
+\end{enumerate}
 
 \subsection{Założenia i ograniczenia środowiska}
 
-Należy opisać uproszczenia przyjęte w projekcie, ograniczenia modelu środowiska oraz elementy, które nie zostały uwzględnione.
-
+W celu umożliwienia stabilnej zbieżności algorytmu PPO w~rozsądnym czasie obliczeniowym przyjęto następujące uproszczenia:
+\begin{itemize}
+    \item Ruch rakiety ograniczono do płaszczyzny dwuwymiarowej ($X-Y$), blokując swobodę ruchu w~osi $Z$ oraz obroty w~osiach przechylenia i~odchylenia.
+    \item Model oporu powietrza uwzględnia siłę oporu proporcjonalną do kwadratu prędkości liniowej ($F_d \propto v^2$), pominięto natomiast wpływ dynamicznej zmiany gęstości atmosfery wraz z~wysokością.
+    \item Masę rakiety przyjęto jako stałą, ignorując zjawisko przemieszczania się środka ciężkości płynnego paliwa wewnątrz zbiorników.
+\end{itemize}
 \section{Implementacja}
 
 \subsection{Struktura repozytorium}
