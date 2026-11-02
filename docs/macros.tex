@@ -1,0 +1,68 @@
+\newcommand{\courseName}{Uczenie się ze wzmocnieniem}
+\newcommand{\courseSubtitle}{Reinforcement Learning}
+\newcommand{\facultyName}{Wydział Elektrotechniki i Informatyki PRz}
+\newcommand{\universityName}{Politechnika Rzeszowska}
+
+\newcommand{\state}{s}
+\newcommand{\rlaction}{a}
+\newcommand{\reward}{r}
+\newcommand{\policy}{\pi}
+\newcommand{\valuefun}{V}
+\newcommand{\qfun}{Q}
+\newcommand{\discount}{\gamma}
+\newcommand{\learningrate}{\alpha}
+\newcommand{\epsilonpar}{\varepsilon}
+
+\newcommand{\rlupdate}[1]{\textcolor{WEIIPrimaryDark}{#1}}
+\newcommand{\importantterm}[1]{\textbf{\textcolor{WEIIPrimaryDark}{#1}}}
+
+\newenvironment{definitionbox}[1]{%
+  \begin{block}{Definicja: #1}%
+}{%
+  \end{block}%
+}
+
+\newenvironment{examplebox}[1]{%
+  \begin{exampleblock}{Przykład: #1}%
+}{%
+  \end{exampleblock}%
+}
+
+\newenvironment{warningbox}[1]{%
+  \setbeamercolor{block title}{fg=white,bg=RLWarning}%
+  \setbeamercolor{block body}{fg=RLTextDark,bg=RLWarning!8}%
+  \begin{block}{Uwaga: #1}%
+}{%
+  \end{block}%
+  \setbeamercolor{block title}{fg=white,bg=WEIIPrimary}%
+  \setbeamercolor{block body}{fg=RLTextDark,bg=WEIIPrimaryLight}%
+}
+
+
+\newenvironment{notebox}[1]{%
+  \setbeamercolor{block title}{fg=white,bg=RLGray}%
+  \setbeamercolor{block body}{fg=RLTextDark,bg=RLLightGray}%
+  \begin{block}{#1}%
+}{%
+  \end{block}%
+  \setbeamercolor{block title}{fg=white,bg=WEIIPrimary}%
+  \setbeamercolor{block body}{fg=RLTextDark,bg=WEIIPrimaryLight}%
+}
+
+\newcommand{\questionframe}[2]{%
+\begin{frame}{#1}
+\begin{exampleblock}{Pytanie do dyskusji}
+#2
+\end{exampleblock}
+\end{frame}
+}
+
+\newcommand{\videolinkframe}[3]{%
+\begin{frame}{#1}
+\centering
+\fbox{\parbox{0.78\textwidth}{\centering\vspace{1.2cm}\Large #2\vspace{1.2cm}}}
+
+\vspace{0.5cm}
+\small Materiał wideo: \url{#3}
+\end{frame}
+}

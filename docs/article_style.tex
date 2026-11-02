@@ -1,0 +1,45 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\input{colors.tex}
+\input{listings.tex}
+
+\hypersetup{colorlinks=true,linkcolor=WEIIPrimaryDark,urlcolor=WEIIPrimaryDark,citecolor=WEIIPrimaryDark}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Uczenie się ze wzmocnieniem}
+\rhead{WEiI PRz}
+\cfoot{\thepage}
+
+\newtcolorbox{taskbox}[1]{colback=WEIIPrimaryLight,colframe=WEIIPrimary,title=\textbf{#1}}
+\newtcolorbox{notebox}[1]{colback=RLLightGray,colframe=RLGray,title=\textbf{#1}}
+\newtcolorbox{warninghandout}[1]{colback=RLWarning!8,colframe=RLWarning,title=\textbf{#1}}
+
+\newcommand{\handouttitle}[3]{%
+\begin{center}
+{\Large\bfseries #1}\\[0.2cm]
+{\large #2}\\[0.15cm]
+{\small #3}
+\end{center}
+\vspace{0.4cm}
+\hrule
+\vspace{0.6cm}
+}
+
+\newcommand{\EnableLabNumbering}{%
+  \renewcommand{\thesection}{L\arabic{section}}%
+  \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}%
+  \renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}%
+}

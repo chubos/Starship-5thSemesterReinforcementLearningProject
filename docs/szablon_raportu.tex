@@ -1,0 +1,245 @@
+\documentclass[12pt]{article}
+\input{article_style.tex}
+
+\title{Raport projektowy\\Uczenie się ze wzmocnieniem}
+\author{Imię i nazwisko studenta}
+\date{2026/2027}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Informacje podstawowe}
+
+\begin{center}
+\begin{tabular}{p{0.34\textwidth}p{0.56\textwidth}}
+\toprule
+Element & Informacja \\
+\midrule
+Imię i nazwisko & Do uzupełnienia \\
+Numer albumu & Do uzupełnienia \\
+Kierunek/specjalność & Do uzupełnienia \\
+Tytuł projektu & Do uzupełnienia \\
+Link do repozytorium & \url{https://github.com/...} \\
+Data oddania & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Temat i cel projektu}
+
+\subsection{Opis problemu}
+
+Należy krótko opisać problem rozwiązywany w~projekcie. 
+Opis powinien być zrozumiały bez czytania kodu źródłowego.
+
+\subsection{Cel agenta}
+
+Należy wyjaśnić, co agent ma osiągnąć oraz kiedy jego działanie można uznać za poprawne lub skuteczne.
+
+\subsection{Uzasadnienie zastosowania uczenia się ze wzmocnieniem}
+
+Należy wyjaśnić, dlaczego problem można rozpatrywać jako problem uczenia się ze wzmocnieniem. W szczególności należy wskazać:
+\begin{itemize}
+    \item jakie decyzje są podejmowane sekwencyjnie,
+    \item w jaki sposób decyzje wpływają na przyszły stan środowiska,
+    \item dlaczego istotny jest wynik długoterminowy, a nie tylko natychmiastowa nagroda,
+    \item dlaczego zastosowanie agenta uczącego się jest uzasadnione.
+\end{itemize}
+
+\section{Formalizacja problemu RL/MDP}
+
+\subsection{Agent i środowisko}
+
+Należy opisać agenta, środowisko oraz sposób ich interakcji. Warto wskazać, co dzieje się w jednym kroku epizodu.
+
+\subsection{Stan lub obserwacja}
+
+Należy opisać informacje dostępne dla agenta. Jeżeli agent nie obserwuje pełnego stanu środowiska, należy wyjaśnić różnicę między stanem środowiska a obserwacją agenta.
+
+\begin{center}
+\begin{tabular}{p{0.30\textwidth}p{0.60\textwidth}}
+\toprule
+Składowa stanu/obserwacji & Znaczenie \\
+\midrule
+Do uzupełnienia & Do uzupełnienia \\
+Do uzupełnienia & Do uzupełnienia \\
+Do uzupełnienia & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Akcje}
+
+Należy opisać zbiór akcji dostępnych dla agenta. 
+Jeżeli niektóre akcje są niedozwolone w~określonych stanach, 
+należy to wyjaśnić.
+
+\begin{center}
+\begin{tabular}{p{0.30\textwidth}p{0.60\textwidth}}
+\toprule
+Akcja & Opis \\
+\midrule
+Do uzupełnienia & Do uzupełnienia \\
+Do uzupełnienia & Do uzupełnienia \\
+Do uzupełnienia & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Funkcja nagrody}
+
+Należy dokładnie opisać funkcję nagrody. Opis powinien zawierać nie tylko wzór lub kod, ale również uzasadnienie przyjętych wartości.
+
+\begin{equation}
+    r_t = \text{do uzupełnienia}
+\end{equation}
+
+W tej sekcji należy wyjaśnić:
+\begin{itemize}
+    \item za co agent otrzymuje nagrodę dodatnią,
+    \item za co agent otrzymuje karę,
+    \item czy występuje kara za krok,
+    \item czy występują ograniczenia twarde lub miękkie,
+    \item czy nagroda nie zachęca agenta do niepożądanego zachowania.
+\end{itemize}
+
+\subsection{Warunki zakończenia epizodu}
+
+Należy wskazać wszystkie sytuacje, w których epizod zostaje zakończony, np. osiągnięcie celu, kolizja, wyczerpanie energii, przekroczenie limitu kroków albo wejście w stan porażki.
+
+\subsection{Założenia i ograniczenia środowiska}
+
+Należy opisać uproszczenia przyjęte w projekcie, ograniczenia modelu środowiska oraz elementy, które nie zostały uwzględnione.
+
+\section{Implementacja}
+
+\subsection{Struktura repozytorium}
+
+Należy krótko opisać strukturę repozytorium i najważniejsze pliki projektu.
+
+\begin{verbatim}
+repozytorium/
+|-- src/
+|-- experiments/
+|-- report/
+|-- results/
+`-- README.md
+\end{verbatim}
+
+\subsection{Środowisko}
+
+Należy opisać sposób implementacji środowiska, w szczególności funkcje inicjalizacji epizodu oraz wykonania kroku środowiska.
+
+\subsection{Agent bazowy}
+
+Należy opisać agenta losowego, heurystycznego albo inny baseline wykorzystany do porównania z agentem uczącym się.
+
+\subsection{Agent uczący się}
+
+Należy opisać zastosowany algorytm RL lub DRL, jego parametry oraz sposób implementacji. W przypadku Q-tab należy opisać reprezentację tablicy wartości. W przypadku DRL należy opisać wejścia modelu, wyjścia modelu, architekturę oraz sposób uczenia.
+
+\section{Plan eksperymentów}
+
+Należy opisać eksperymenty zaplanowane w celu oceny działania agenta.
+
+\begin{center}
+\begin{tabular}{p{0.24\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Eksperyment & Co jest zmieniane? & Co jest mierzone? \\
+\midrule
+E1 & Do uzupełnienia & Do uzupełnienia \\
+E2 & Do uzupełnienia & Do uzupełnienia \\
+E3 & Do uzupełnienia & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+W tej sekcji należy wskazać:
+\begin{itemize}
+    \item liczbę epizodów uczenia,
+    \item liczbę powtórzeń eksperymentu albo uzasadnienie braku powtórzeń,
+    \item parametry uczenia,
+    \item metryki oceny,
+    \item warianty środowiska, map lub funkcji nagrody,
+    \item sposób porównania z agentem bazowym.
+\end{itemize}
+
+\section{Wyniki}
+
+W tej sekcji należy przedstawić wyniki eksperymentów. Wyniki powinny być pokazane w postaci tabel, wykresów lub czytelnych zestawień.
+
+\begin{center}
+\begin{tabular}{p{0.28\textwidth}p{0.20\textwidth}p{0.20\textwidth}p{0.20\textwidth}}
+\toprule
+Wariant & Średni zwrot & Skuteczność & Długość epizodu \\
+\midrule
+Agent bazowy & Do uzupełnienia & Do uzupełnienia & Do uzupełnienia \\
+Agent RL/DRL & Do uzupełnienia & Do uzupełnienia & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[h]
+    \centering
+    \fbox{\parbox{0.82\textwidth}{\centering Miejsce na wykres procesu uczenia}}
+    \caption{Przykładowy wykres procesu uczenia agenta.}
+\end{figure}
+
+\section{Analiza i wnioski}
+
+Należy zinterpretować wyniki. W tej części należy odpowiedzieć m.in. na pytania:
+\begin{itemize}
+    \item Czy agent uczący się działa lepiej niż agent bazowy?
+    \item Jak zmieniało się zachowanie agenta w trakcie uczenia?
+    \item Które elementy środowiska były najtrudniejsze?
+    \item Czy funkcja nagrody prowadziła do oczekiwanego zachowania?
+    \item Czy wystąpiły przypadki niepożądanego zachowania agenta?
+    \item Jakie są najważniejsze ograniczenia rozwiązania?
+\end{itemize}
+
+\section{Instrukcja uruchomienia}
+
+Należy opisać sposób uruchomienia projektu od czystego repozytorium. Przykładowo:
+
+\begin{verbatim}
+git clone https://github.com/...
+cd nazwa-repozytorium
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python src/main.py
+\end{verbatim}
+
+Należy również wskazać, jak odtworzyć eksperymenty oraz gdzie zapisywane są wyniki.
+
+\section{Wsparcie AI}
+
+W tej sekcji należy obowiązkowo opisać wykorzystanie narzędzi sztucznej inteligencji. Jeżeli student nie korzystał z takich narzędzi, należy wpisać jednoznaczną informację, że nie korzystano ze wsparcia AI.
+
+\begin{center}
+\begin{tabular}{p{0.13\textwidth}p{0.19\textwidth}p{0.21\textwidth}p{0.27\textwidth}}
+\toprule
+Data & Narzędzie/model & Cel użycia & Transkrypt / link / zakres \\
+\midrule
+Do uzupełnienia & Do uzupełnienia & Do uzupełnienia & Do uzupełnienia \\
+Do uzupełnienia & Do uzupełnienia & Do uzupełnienia & Do uzupełnienia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Należy zapisać transkrypty rozmów z modelami AI wraz z datą oraz nazwą modelu. Jeżeli rozmowa odbywała się poza narzędziami programistycznymi, należy dodatkowo udostępnić całą rozmowę poprzez link, o ile użyte narzędzie umożliwia takie udostępnienie.
+
+Student powinien także wyjaśnić, które elementy wygenerowane lub zasugerowane przez AI zostały samodzielnie sprawdzone, zmodyfikowane albo odrzucone.
+
+\section{Literatura}
+
+W tej sekcji należy wskazać wykorzystane źródła: książki, artykuły naukowe, dokumentację bibliotek, materiały wykładowe oraz inne źródła użyte podczas pracy nad projektem.
+
+\begin{thebibliography}{9}
+\bibitem{sutton_barto}
+R. S. Sutton, A. G. Barto, \textit{Reinforcement Learning: An Introduction}, 2nd ed., MIT Press, 2018.
+\end{thebibliography}
+
+\end{document}
