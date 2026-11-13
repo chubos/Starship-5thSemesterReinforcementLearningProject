@@ -1,0 +1,29 @@
+{
+    "StarshipLander": {
+        "checkpoints": [
+            {
+                "steps": 12700,
+                "file_path": "results\\starship_ppo_01\\StarshipLander\\StarshipLander-12700.onnx",
+                "reward": -103.06238133514984,
+                "creation_time": 1794401990.0546176,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_01\\StarshipLander\\StarshipLander-12700.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 12700,
+            "file_path": "results\\starship_ppo_01\\StarshipLander.onnx",
+            "reward": -103.06238133514984,
+            "creation_time": 1794401990.0546176,
+            "auxillary_file_paths": [
+                "results\\starship_ppo_01\\StarshipLander\\StarshipLander-12700.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.2.2+cpu"
+    }
+}
