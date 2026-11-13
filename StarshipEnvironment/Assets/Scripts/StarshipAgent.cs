@@ -11,32 +11,32 @@ public class StarshipAgent : Agent
     [SerializeField] private Transform enginePivot;
 
     [Header("Parametry fizyczne")]
-    public float maxThrust = 30000f;       // F_max = 30 kN
-    public float maxGimbalAngle = 20f;     // phi_max = 20 stopni
-    public float maxRcsTorque = 3000f;     // moment obrotowy klap/RCS
+    public float maxThrust = 24000f;       // Realistyczne TWR ~2.4 przy masie 1000kg
+    public float maxGimbalAngle = 10f;     // Realistyczne wychylenie dyszy (+/- 10 deg)
+    public float maxRcsTorque = 2000f;     // Moment obrotowy sterów RCS
 
     private float currentGimbalAngle = 0f;
     private float previousThrust = 0f;
     private float fuel = 1.0f;
-    private const float FuelBurnRate = 0.0008f;
+    private const float FuelBurnRate = 0.0005f;
 
     public override void OnEpisodeBegin()
     {
-        // 1. Reset prêdkoœci fizycznych
+        // 1. Pe³ny reset prêdkoœci liniowej i k¹towej
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // 2. Warunki pocz¹tkowe (wysokoœæ 60-80m, offset poziomy, spadek z przechyleniem)
-        float startX = landingPad.position.x + Random.Range(-15f, 15f);
-        float startY = landingPad.position.y + Random.Range(60f, 80f);
+        // 2. Warunki pocz¹tkowe (wysokoœæ 70-90m, ma³y offset poziomy)
+        float startX = landingPad.position.x + Random.Range(-5f, 5f);
+        float startY = landingPad.position.y + Random.Range(70f, 90f);
         transform.position = new Vector3(startX, startY, landingPad.position.z);
 
-        // Pocz¹tkowy k¹t (belly flop: przechy³ o 30 do 75 stopni w lewo lub w prawo)
-        float startAngleZ = Random.Range(30f, 75f) * (Random.value > 0.5f ? 1f : -1f);
+        // 3. £atwy start: prawie pionowo (-15 do +15 stopni)
+        float startAngleZ = Random.Range(-15f, 15f);
         transform.rotation = Quaternion.Euler(0f, 0f, startAngleZ);
 
-        // Wstêpna prêdkoœæ opadania
-        rb.linearVelocity = new Vector3(Random.Range(-2f, 2f), -15f, 0f);
+        // 4. £agodna prêdkoœæ opadania na start
+        rb.linearVelocity = new Vector3(0f, -5f, 0f);
 
         // Reset zmiennych wewnêtrznych
         fuel = 1.0f;
@@ -46,7 +46,7 @@ public class StarshipAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        // Dok³adnie 10 zmiennych stanu zdefiniowanych w raporcie LaTeX i README:
+        // Dok³adnie 10 zmiennych stanu:
         Vector3 relPos = landingPad.position - transform.position;
 
         // 1. Delta x (wzglêdna pozycja pozioma)
@@ -80,7 +80,7 @@ public class StarshipAgent : Agent
 
         // Mapowanie ci¹gu z [-1, 1] na [0, 1]
         float thrustFactor = Mathf.Clamp01((rawThrust + 1f) / 2f);
-        if (fuel <= 0f) thrustFactor = 0f; // brak paliwa = brak ci¹gu
+        if (fuel <= 0f) thrustFactor = 0f;
 
         currentGimbalAngle = rawGimbal * maxGimbalAngle;
         float rcsInput = rawRcs;
@@ -97,7 +97,7 @@ public class StarshipAgent : Agent
         fuel = Mathf.Max(0f, fuel - thrustFactor * FuelBurnRate);
         previousThrust = thrustFactor;
 
-        // 4. Krokowa funkcja nagrody (zgodna ze wzorem z raportu)
+        // 4. Krokowa funkcja nagrody
         CalculateStepReward(thrustFactor);
     }
 
@@ -107,20 +107,49 @@ public class StarshipAgent : Agent
         float dist = new Vector2(relPos.x, relPos.y).magnitude;
         float cosTheta = transform.up.y;
 
-        // Waga wysokoœciowa w_y = min(1.0, 35.0 / max(Delta y, 1.0))
+        // Natychmiastowe przerwanie epizodu, gdy rakieta przewróci siê w locie (> ~72 deg)
+        if (cosTheta < 0.3f)
+        {
+            SetReward(-50f);
+            EndEpisode();
+            return;
+        }
+
+        // Waga wysokoœciowa
         float heightAbovePad = Mathf.Max(1.0f, transform.position.y - landingPad.position.y);
         float wy = Mathf.Min(1.0f, 35.0f / heightAbovePad);
 
-        // Sk³adniki ze wzoru r_t:
+        // Podstawowe sk³adniki
         float rStep = -0.002f;
         float rDist = -0.001f * dist;
-        float rOrient = wy * Mathf.Max(0f, cosTheta) * 0.04f;
         float rFuel = -0.0005f * thrustFactor;
 
-        AddReward(rStep + rDist + rOrient + rFuel);
+        // Kara za zbyt szybkie obracanie siê
+        float rSpin = -0.005f * Mathf.Abs(rb.angularVelocity.z);
+
+        // Zaostrzona nagroda za pion
+        float uprightScore = Mathf.Pow(Mathf.Max(0f, cosTheta), 6);
+        float rOrient = wy * uprightScore * 0.08f;
+
+        // Przy podejœciu poni¿ej 15m: nagradzamy ma³¹ prêdkoœæ (zw³aszcza boczn¹) i karzemy za przechy³
+        float rLandingApproach = 0f;
+        if (heightAbovePad < 15.0f)
+        {
+            if (cosTheta > 0.85f)
+            {
+                float speedPenalty = (Mathf.Abs(rb.linearVelocity.y) + Mathf.Abs(rb.linearVelocity.x)) * 0.002f;
+                rLandingApproach += 0.015f - speedPenalty;
+            }
+            float lateralPenalty = Mathf.Abs(rb.linearVelocity.x) * 0.01f;
+            float tiltPenalty = (1.0f - Mathf.Max(0f, cosTheta)) * 0.15f;
+            float angularPenalty = Mathf.Abs(rb.angularVelocity.z) * 0.02f;
+            rLandingApproach -= (lateralPenalty + tiltPenalty + angularPenalty);
+        }
+
+        AddReward(rStep + rDist + rOrient + rFuel + rSpin + rLandingApproach);
 
         // Warunek granicy (Out of bounds)
-        if (transform.position.y > 150f || Mathf.Abs(relPos.x) > 50f)
+        if (heightAbovePad > 160f || Mathf.Abs(relPos.x) > 60f)
         {
             SetReward(-100f);
             EndEpisode();
@@ -135,33 +164,38 @@ public class StarshipAgent : Agent
             float speedY = Mathf.Abs(rb.linearVelocity.y);
             float speedX = Mathf.Abs(rb.linearVelocity.x);
 
-            // Warunki bezpiecznego l¹dowania: ma³a prêdkoœæ pionowa i pozioma + pion kad³uba
-            if (speedY < 5.0f && speedX < 1.5f && cosTheta > 0.95f)
+            // 1. Pe³ny sukces: miêkkie i pionowe l¹dowanie
+            if (speedY < 8.0f && speedX < 3.0f && cosTheta > 0.94f)
             {
-                SetReward(150.0f); // Sukces
+                SetReward(150.0f);
             }
+            // 2. Strefa poœrednia ("prawie dobrze"): dodatnia nagroda prowadz¹ca sieæ ku idea³owi
+            else if (speedY < 14.0f && speedX < 6.0f && cosTheta > 0.80f)
+            {
+                float quality = (1.0f - (speedY / 14.0f)) * 40f + (cosTheta * 30f);
+                SetReward(quality);
+            }
+            // 3. Twarde lub krzywe rozbicie na platformie
             else
             {
-                SetReward(-30.0f); // Zbyt mocne uderzenie lub przewrócenie
+                SetReward(-25.0f);
             }
             EndEpisode();
         }
         else if (collision.gameObject.CompareTag("Ground"))
         {
-            SetReward(-50.0f); // Rozbicie poza platform¹
+            SetReward(-50.0f);
             EndEpisode();
         }
     }
 
-    // Sterowanie rêczne z klawiatury (do testów przed treningiem)
+    // Sterowanie rêczne z klawiatury
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var continuousActions = actionsOut.ContinuousActions;
-        // Spacja: pe³ny ci¹g
         continuousActions[0] = Input.GetKey(KeyCode.Space) ? 1.0f : -1.0f;
-        // Strza³ki A/D lub lewo/prawo: gimbal
         continuousActions[1] = Input.GetAxis("Horizontal");
-        // Klawisze Q/E: moment obrotowy RCS
+
         float rcs = 0f;
         if (Input.GetKey(KeyCode.Q)) rcs += 1f;
         if (Input.GetKey(KeyCode.E)) rcs -= 1f;

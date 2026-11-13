@@ -4,8 +4,8 @@ behaviors:
     hyperparameters:
       batch_size: 2048
       buffer_size: 20480
-      learning_rate: 0.0003
-      beta: 0.005           # Współczynnik entropii (zachęca do eksploracji)
+      learning_rate: 0.00005
+      beta: 0.001           # Współczynnik entropii (zachęca do eksploracji)
       epsilon: 0.2          # Margines obcięcia (PPO clip)
       lambd: 0.95           # Współczynnik GAE (Generalized Advantage Estimation)
       num_epoch: 3          # Liczba epok optymalizacji na jedną partię
@@ -15,7 +15,7 @@ behaviors:
       num_layers: 2
     reward_signals:
       extrinsic:
-        gamma: 0.99         # Dyskonto przyszłych nagród
+        gamma: 0.995         # Dyskonto przyszłych nagród
         strength: 1.0
     max_steps: 150000000      # Całkowity budżet kroków treningu
     time_horizon: 64        # Horyzont zbierania trajektorii
