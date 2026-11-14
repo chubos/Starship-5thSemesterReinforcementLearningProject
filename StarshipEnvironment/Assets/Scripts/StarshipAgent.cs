@@ -23,8 +23,9 @@ public class StarshipAgent : Agent
     public float minFlipAngle = 65f;
     public float maxFlipAngle = 82f;
 
-    [Header("Prezentacja")]
+    [Header("Prezentacja i Baseline")]
     public float landingPauseDuration = 2.0f;
+    public bool useRandomPolicy = false;
 
     private float currentGimbalAngle = 0f;
     private float previousThrust = 0f;
@@ -243,6 +244,15 @@ public class StarshipAgent : Agent
     public override void Heuristic(in ActionBuffers actionsOut)
     {
         var continuousActions = actionsOut.ContinuousActions;
+
+        if (useRandomPolicy)
+        {
+            continuousActions[0] = Random.Range(-1f, 1f);
+            continuousActions[1] = Random.Range(-1f, 1f);
+            continuousActions[2] = Random.Range(-1f, 1f);
+            return;
+        }
+
         continuousActions[0] = Input.GetKey(KeyCode.Space) ? 1.0f : -1.0f;
         continuousActions[1] = Input.GetAxis("Horizontal");
 
