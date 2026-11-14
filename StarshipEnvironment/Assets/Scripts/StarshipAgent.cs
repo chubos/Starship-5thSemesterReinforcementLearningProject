@@ -5,6 +5,13 @@ using Unity.MLAgents.Actuators;
 
 public class StarshipAgent : Agent
 {
+    public enum BaselineMode
+    {
+        ManualKeyboard,
+        RandomPolicy,
+        HeuristicPD
+    }
+
     [Header("Referencje")]
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Transform landingPad;
@@ -23,9 +30,11 @@ public class StarshipAgent : Agent
     public float minFlipAngle = 65f;
     public float maxFlipAngle = 82f;
 
-    [Header("Prezentacja i Baseline")]
+    [Header("Prezentacja, Baseline i Powtarzalnoœæ")]
     public float landingPauseDuration = 2.0f;
-    public bool useRandomPolicy = false;
+    public BaselineMode baselineMode = BaselineMode.RandomPolicy;
+    public bool useFixedSeed = false;
+    public int randomSeed = 42;
 
     private float currentGimbalAngle = 0f;
     private float previousThrust = 0f;
@@ -36,6 +45,11 @@ public class StarshipAgent : Agent
 
     private void Start()
     {
+        if (useFixedSeed)
+        {
+            Random.InitState(randomSeed);
+        }
+
         // Wymusza normaln¹ prêdkoœæ czasu (1x) w trybie podgl¹du/prezentacji
         if (!Academy.Instance.IsCommunicatorOn)
         {
@@ -245,7 +259,7 @@ public class StarshipAgent : Agent
     {
         var continuousActions = actionsOut.ContinuousActions;
 
-        if (useRandomPolicy)
+        if (baselineMode == BaselineMode.RandomPolicy)
         {
             continuousActions[0] = Random.Range(-1f, 1f);
             continuousActions[1] = Random.Range(-1f, 1f);
@@ -253,6 +267,32 @@ public class StarshipAgent : Agent
             return;
         }
 
+        if (baselineMode == BaselineMode.HeuristicPD)
+        {
+            Vector3 relPos = landingPad.position - transform.position;
+            float height = Mathf.Max(0.1f, transform.position.y - landingPad.position.y);
+
+            // 1. Docelowy k¹t przechy³u: prostuj do pionu poni¿ej 45m, wy¿ej lekko pochyl w stronê l¹dowiska
+            float desiredAngle = (height < 45f) ? 0f : Mathf.Clamp(-relPos.x * 0.6f, -15f, 15f);
+            float currentAngle = Mathf.DeltaAngle(0f, transform.eulerAngles.z);
+            float angleError = desiredAngle - currentAngle;
+
+            // Regulator PD dla obrotu (RCS + Gimbal)
+            float rcsCmd = Mathf.Clamp(angleError * 0.08f - rb.angularVelocity.z * 0.5f, -1f, 1f);
+            float gimbalCmd = Mathf.Clamp(-angleError * 0.05f + rb.angularVelocity.z * 0.3f, -1f, 1f);
+
+            // 2. Regulator prêdkoœci opadania (ci¹g g³ówny)
+            float targetVy = (height < 25f) ? -3.0f : -12.0f;
+            float vyError = targetVy - rb.linearVelocity.y;
+            float thrustCmd = (height < 55f) ? Mathf.Clamp(vyError * 0.25f, -1f, 1f) : -1f;
+
+            continuousActions[0] = thrustCmd;
+            continuousActions[1] = gimbalCmd;
+            continuousActions[2] = rcsCmd;
+            return;
+        }
+
+        // Sterowanie rêczne (ManualKeyboard)
         continuousActions[0] = Input.GetKey(KeyCode.Space) ? 1.0f : -1.0f;
         continuousActions[1] = Input.GetAxis("Horizontal");
 

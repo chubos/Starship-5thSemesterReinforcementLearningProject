@@ -349,7 +349,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 5022602860645237092, guid: 99fc7a3f562f1b2478862501416d54fa, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 1
+  m_BehaviorType: 2
   m_BehaviorName: StarshipLander
   TeamId: 0
   m_UseChildSensors: 1
@@ -385,7 +385,9 @@ MonoBehaviour:
   minFlipAngle: 65
   maxFlipAngle: 82
   landingPauseDuration: 2
-  useRandomPolicy: 0
+  baselineMode: 2
+  useFixedSeed: 1
+  randomSeed: 42
 --- !u!114 &918461960827756984
 MonoBehaviour:
   m_ObjectHideFlags: 0
