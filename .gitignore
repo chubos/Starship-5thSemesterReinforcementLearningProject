@@ -22,6 +22,7 @@
 **/.vs/
 **/.idea/
 **/.vscode/
+**/*.fbx
 
 # Pliki raportu awarii i pamięci podręcznej Unity
 sysinfo.txt

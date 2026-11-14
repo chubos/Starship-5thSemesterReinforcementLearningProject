@@ -9,27 +9,46 @@ public class StarshipAgent : Agent
     [SerializeField] private Rigidbody rb;
     [SerializeField] private Transform landingPad;
     [SerializeField] private Transform enginePivot;
+    [SerializeField] private ParticleSystem engineFlame;
 
     [Header("Parametry fizyczne")]
     public float maxThrust = 24000f;
     public float maxGimbalAngle = 16f;
-    public float maxRcsTorque = 4800f;     // Lekko wzmocniony RCS do wyjœcia z 80 stopni
+    public float maxRcsTorque = 4800f;
 
     [Header("Parametry startowe (Pe³ny Belly Flop)")]
-    public float minStartHeight = 130f;    // Zwiêkszona wysokoœæ startowa
+    public float minStartHeight = 130f;
     public float maxStartHeight = 160f;
     public float maxStartHorizontalOffset = 15f;
-    public float minFlipAngle = 65f;       // Niemal poziomy zrzut (65 - 82 deg)
+    public float minFlipAngle = 65f;
     public float maxFlipAngle = 82f;
+
+    [Header("Prezentacja")]
+    public float landingPauseDuration = 2.0f;
 
     private float currentGimbalAngle = 0f;
     private float previousThrust = 0f;
     private float previousCosTheta = 1f;
     private float fuel = 1.0f;
-    private const float FuelBurnRate = 0.0003f; // Zmniejszone zu¿ycie paliwa na d³u¿szy lot z 160m
+    private bool isLandingDelay = false;
+    private const float FuelBurnRate = 0.0003f;
+
+    private void Start()
+    {
+        // Wymusza normaln¹ prêdkoœæ czasu (1x) w trybie podgl¹du/prezentacji
+        if (!Academy.Instance.IsCommunicatorOn)
+        {
+            Time.timeScale = 1.0f;
+        }
+    }
 
     public override void OnEpisodeBegin()
     {
+        CancelInvoke(nameof(EndEpisode));
+        isLandingDelay = false;
+
+        // Odblokowanie fizyki na pocz¹tku nowego epizodu
+        rb.isKinematic = false;
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
@@ -47,6 +66,12 @@ public class StarshipAgent : Agent
         previousThrust = 0f;
         currentGimbalAngle = 0f;
         previousCosTheta = transform.up.y;
+
+        if (engineFlame != null)
+        {
+            engineFlame.Clear();
+            engineFlame.Stop();
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -67,6 +92,8 @@ public class StarshipAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
+        if (isLandingDelay) return;
+
         float rawThrust = actions.ContinuousActions[0];
         float rawGimbal = actions.ContinuousActions[1];
         float rawRcs = actions.ContinuousActions[2];
@@ -86,7 +113,36 @@ public class StarshipAgent : Agent
         fuel = Mathf.Max(0f, fuel - thrustFactor * FuelBurnRate);
         previousThrust = thrustFactor;
 
+        UpdateEngineVisuals(thrustFactor);
         CalculateStepReward(thrustFactor);
+    }
+
+    private void UpdateEngineVisuals(float thrustFactor)
+    {
+        if (enginePivot != null)
+        {
+            enginePivot.localRotation = Quaternion.Euler(0f, 0f, currentGimbalAngle);
+        }
+
+        if (engineFlame == null) return;
+
+        // Wymusza skierowanie strumienia cz¹steczek dok³adnie przeciwnie do wektora ci¹gu (w dó³ dyszy)
+        engineFlame.transform.rotation = Quaternion.LookRotation(-enginePivot.up);
+
+        var emission = engineFlame.emission;
+        var main = engineFlame.main;
+
+        if (!isLandingDelay && fuel > 0f)
+        {
+            if (!engineFlame.isPlaying) engineFlame.Play();
+            emission.rateOverTime = Mathf.Lerp(180f, 700f, thrustFactor);
+            main.startSpeed = Mathf.Lerp(25f, 85f, thrustFactor);
+            main.startSize = Mathf.Lerp(3.5f, 11.0f, thrustFactor);
+        }
+        else
+        {
+            if (engineFlame.isPlaying) engineFlame.Stop();
+        }
     }
 
     private void CalculateStepReward(float thrustFactor)
@@ -96,12 +152,10 @@ public class StarshipAgent : Agent
         float cosTheta = transform.up.y;
         float heightAbovePad = Mathf.Max(1.0f, transform.position.y - landingPad.position.y);
 
-        // Sygna³ za prostowanie poni¿ej 45m
         float deltaUpright = cosTheta - previousCosTheta;
         float rFlipProgress = (heightAbovePad < 45f) ? (deltaUpright * 4.0f) : 0f;
         previousCosTheta = cosTheta;
 
-        // Z³agodzony próg przekrêcenia (~110 deg), ¿eby nie przerywaæ startu z 82 deg
         if (cosTheta < -0.35f)
         {
             AddReward(-40f);
@@ -112,7 +166,7 @@ public class StarshipAgent : Agent
         float wy = Mathf.Min(1.0f, 50.0f / heightAbovePad);
 
         float rStep = -0.002f;
-        float rDist = -0.0006f * dist; // Nieco mniejsza kara za dystans przy starcie ze 160m
+        float rDist = -0.0006f * dist;
         float rFuel = -0.0004f * thrustFactor;
         float rSpin = -0.003f * Mathf.Abs(rb.angularVelocity.z);
 
@@ -121,12 +175,10 @@ public class StarshipAgent : Agent
 
         float rUpward = (rb.linearVelocity.y > 2.0f) ? (-0.015f * rb.linearVelocity.y) : 0f;
 
-        // Naprowadzanie i przeciwwaga ci¹giem
         float desiredVx = Mathf.Clamp(relPos.x * 0.8f, -8f, 8f);
         float vxError = Mathf.Abs(rb.linearVelocity.x - desiredVx);
         float rVelocityMatch = Mathf.Exp(-0.25f * vxError) * 0.03f;
 
-        // Koñcowe hamowanie poni¿ej 25m
         float rLandingApproach = 0f;
         if (heightAbovePad < 25.0f)
         {
@@ -141,7 +193,6 @@ public class StarshipAgent : Agent
 
         AddReward(rStep + rDist + rOrient + rFuel + rSpin + rFlipProgress + rUpward + rVelocityMatch + rLandingApproach);
 
-        // Podniesiony sufit ucieczki na 190m (dla startu z 130-160m)
         if (heightAbovePad > 190f || Mathf.Abs(relPos.x) > 55f || Mathf.Abs(relPos.z) > 55f)
         {
             AddReward(-60f);
@@ -151,6 +202,8 @@ public class StarshipAgent : Agent
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (isLandingDelay) return;
+
         if (collision.gameObject.CompareTag("LandingPad"))
         {
             float cosTheta = transform.up.y;
@@ -170,11 +223,19 @@ public class StarshipAgent : Agent
             {
                 AddReward(-20.0f);
             }
-            EndEpisode();
+
+            // Zatrzymuje rakietê w miejscu na platformie, aby zaokr¹glona kapsu³a nie przewraca³a siê na bok
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+
+            isLandingDelay = true;
+            if (engineFlame != null) engineFlame.Stop();
+            Invoke(nameof(EndEpisode), landingPauseDuration);
         }
         else if (collision.gameObject.CompareTag("Ground"))
         {
-            AddReward(-40.0f);
+            AddReward(-40f);
             EndEpisode();
         }
     }
