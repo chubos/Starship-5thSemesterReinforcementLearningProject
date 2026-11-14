@@ -369,18 +369,18 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 750
+  MaxStep: 1100
   rb: {fileID: 7287842414202745271}
   landingPad: {fileID: 7388480346508010651}
   enginePivot: {fileID: 1068225382152662032}
   maxThrust: 30000
   maxGimbalAngle: 20
-  maxRcsTorque: 4500
-  minStartHeight: 90
-  maxStartHeight: 120
+  maxRcsTorque: 4800
+  minStartHeight: 130
+  maxStartHeight: 160
   maxStartHorizontalOffset: 15
-  minFlipAngle: 50
-  maxFlipAngle: 75
+  minFlipAngle: 65
+  maxFlipAngle: 82
 --- !u!114 &918461960827756984
 MonoBehaviour:
   m_ObjectHideFlags: 0

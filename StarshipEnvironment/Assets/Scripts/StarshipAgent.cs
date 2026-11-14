@@ -10,23 +10,23 @@ public class StarshipAgent : Agent
     [SerializeField] private Transform landingPad;
     [SerializeField] private Transform enginePivot;
 
-    [Header("Parametry fizyczne (Zwiêkszony autorytet manewru)")]
+    [Header("Parametry fizyczne")]
     public float maxThrust = 24000f;
-    public float maxGimbalAngle = 16f;     // Wiêkszy zakres wychylenia dyszy dla pewnego obrotu
-    public float maxRcsTorque = 4500f;     // Mocniejszy RCS do inicjacji i wyhamowania flipu
+    public float maxGimbalAngle = 16f;
+    public float maxRcsTorque = 4800f;     // Lekko wzmocniony RCS do wyjœcia z 80 stopni
 
-    [Header("Parametry startowe (Belly Flop)")]
-    public float minStartHeight = 80f;
-    public float maxStartHeight = 105f;
-    public float maxStartHorizontalOffset = 10f;
-    public float minFlipAngle = 30f;
-    public float maxFlipAngle = 50f;
+    [Header("Parametry startowe (Pe³ny Belly Flop)")]
+    public float minStartHeight = 130f;    // Zwiêkszona wysokoœæ startowa
+    public float maxStartHeight = 160f;
+    public float maxStartHorizontalOffset = 15f;
+    public float minFlipAngle = 65f;       // Niemal poziomy zrzut (65 - 82 deg)
+    public float maxFlipAngle = 82f;
 
     private float currentGimbalAngle = 0f;
     private float previousThrust = 0f;
     private float previousCosTheta = 1f;
     private float fuel = 1.0f;
-    private const float FuelBurnRate = 0.0004f;
+    private const float FuelBurnRate = 0.0003f; // Zmniejszone zu¿ycie paliwa na d³u¿szy lot z 160m
 
     public override void OnEpisodeBegin()
     {
@@ -41,7 +41,7 @@ public class StarshipAgent : Agent
         float startAngleZ = Random.Range(minFlipAngle, maxFlipAngle) * direction;
         transform.rotation = Quaternion.Euler(0f, 0f, startAngleZ);
 
-        rb.linearVelocity = new Vector3(Random.Range(-1.5f, 1.5f), -8f, 0f);
+        rb.linearVelocity = new Vector3(Random.Range(-2f, 2f), -10f, 0f);
 
         fuel = 1.0f;
         previousThrust = 0f;
@@ -94,39 +94,39 @@ public class StarshipAgent : Agent
         Vector3 relPos = landingPad.position - transform.position;
         float dist = new Vector2(relPos.x, relPos.y).magnitude;
         float cosTheta = transform.up.y;
+        float heightAbovePad = Mathf.Max(1.0f, transform.position.y - landingPad.position.y);
 
-        // 1. Bezpoœredni sygna³ za prostowanie rakiety
+        // Sygna³ za prostowanie poni¿ej 45m
         float deltaUpright = cosTheta - previousCosTheta;
-        float rFlipProgress = deltaUpright * 15.0f;
+        float rFlipProgress = (heightAbovePad < 45f) ? (deltaUpright * 4.0f) : 0f;
         previousCosTheta = cosTheta;
 
-        // Przerwanie epizodu przy przekrêceniu (> ~105 deg)
-        if (cosTheta < -0.25f)
+        // Z³agodzony próg przekrêcenia (~110 deg), ¿eby nie przerywaæ startu z 82 deg
+        if (cosTheta < -0.35f)
         {
             AddReward(-40f);
             EndEpisode();
             return;
         }
 
-        float heightAbovePad = Mathf.Max(1.0f, transform.position.y - landingPad.position.y);
-        float wy = Mathf.Min(1.0f, 45.0f / heightAbovePad);
+        float wy = Mathf.Min(1.0f, 50.0f / heightAbovePad);
 
         float rStep = -0.002f;
-        float rDist = -0.0008f * dist;
-        float rFuel = -0.0005f * thrustFactor;
+        float rDist = -0.0006f * dist; // Nieco mniejsza kara za dystans przy starcie ze 160m
+        float rFuel = -0.0004f * thrustFactor;
         float rSpin = -0.003f * Mathf.Abs(rb.angularVelocity.z);
 
         float uprightScore = Mathf.Pow(Mathf.Max(0f, cosTheta), 4);
         float rOrient = wy * uprightScore * 0.06f;
 
-        // Kara za ucieczkê w górê
         float rUpward = (rb.linearVelocity.y > 2.0f) ? (-0.015f * rb.linearVelocity.y) : 0f;
 
-        // 2. Aktywne naprowadzanie nad œrodek platformy (X -> 0)
-        float horizontalAccuracy = Mathf.Exp(-0.15f * Mathf.Abs(relPos.x));
-        float rCentering = horizontalAccuracy * 0.02f;
+        // Naprowadzanie i przeciwwaga ci¹giem
+        float desiredVx = Mathf.Clamp(relPos.x * 0.8f, -8f, 8f);
+        float vxError = Mathf.Abs(rb.linearVelocity.x - desiredVx);
+        float rVelocityMatch = Mathf.Exp(-0.25f * vxError) * 0.03f;
 
-        // 3. Silna nagroda za wyhamowanie i pionowanie na ostatnich 25 metrach
+        // Koñcowe hamowanie poni¿ej 25m
         float rLandingApproach = 0f;
         if (heightAbovePad < 25.0f)
         {
@@ -139,10 +139,10 @@ public class StarshipAgent : Agent
             rLandingApproach -= (lateralPenalty + tiltPenalty + angularPenalty);
         }
 
-        AddReward(rStep + rDist + rOrient + rFuel + rSpin + rFlipProgress + rUpward + rCentering + rLandingApproach);
+        AddReward(rStep + rDist + rOrient + rFuel + rSpin + rFlipProgress + rUpward + rVelocityMatch + rLandingApproach);
 
-        // Granice bezpieczeñstwa (X, Y, Z)
-        if (heightAbovePad > 135f || Mathf.Abs(relPos.x) > 45f || Mathf.Abs(relPos.z) > 45f)
+        // Podniesiony sufit ucieczki na 190m (dla startu z 130-160m)
+        if (heightAbovePad > 190f || Mathf.Abs(relPos.x) > 55f || Mathf.Abs(relPos.z) > 55f)
         {
             AddReward(-60f);
             EndEpisode();
@@ -157,7 +157,6 @@ public class StarshipAgent : Agent
             float speedY = Mathf.Abs(rb.linearVelocity.y);
             float speedX = Mathf.Abs(rb.linearVelocity.x);
 
-            // Wysoka nagroda (+250) zachêca agenta do podjêcia ryzyka pe³nego l¹dowania
             if (speedY < 8.0f && speedX < 3.0f && cosTheta > 0.94f)
             {
                 AddReward(250.0f);
