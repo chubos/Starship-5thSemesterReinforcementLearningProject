@@ -349,7 +349,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 5022602860645237092, guid: 99fc7a3f562f1b2478862501416d54fa, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 0
   m_BehaviorName: StarshipLander
   TeamId: 0
   m_UseChildSensors: 1

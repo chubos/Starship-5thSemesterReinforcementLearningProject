@@ -2,11 +2,11 @@ behaviors:
   StarshipLander:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 2048
-      buffer_size: 20480
-      learning_rate: 0.00004
-      beta: 0.001        # Współczynnik entropii (zachęca do eksploracji)
-      epsilon: 0.2          # Margines obcięcia (PPO clip)
+      batch_size: 4096
+      buffer_size: 81920
+      learning_rate: 0.00002
+      beta: 0.03       # Współczynnik entropii (zachęca do eksploracji)
+      epsilon: 0.1          # Margines obcięcia (PPO clip)
       lambd: 0.95           # Współczynnik GAE (Generalized Advantage Estimation)
       num_epoch: 3          # Liczba epok optymalizacji na jedną partię
     network_settings:
@@ -17,6 +17,8 @@ behaviors:
       extrinsic:
         gamma: 0.995         # Dyskonto przyszłych nagród
         strength: 1.0
-    max_steps: 150000000      # Całkowity budżet kroków treningu
-    time_horizon: 128       # Horyzont zbierania trajektorii
+    max_steps: 15000000  # Całkowity budżet kroków treningu
+    time_horizon: 256       # Horyzont zbierania trajektorii
     summary_freq: 5000      # Częstotliwość zapisu statystyk do wykresów
+    keep_checkpoints: 20
+    checkpoint_interval: 50000

@@ -167,6 +167,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3105508481506097511, guid: 0a5b408e8e1b22343a1b153a7a93414a, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 5022602860645237092, guid: 99fc7a3f562f1b2478862501416d54fa, type: 3}
+    - target: {fileID: 3105508481506097511, guid: 0a5b408e8e1b22343a1b153a7a93414a, type: 3}
+      propertyPath: m_BehaviorType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4515386986536868398, guid: 0a5b408e8e1b22343a1b153a7a93414a, type: 3}
       propertyPath: m_Name
       value: Training Area

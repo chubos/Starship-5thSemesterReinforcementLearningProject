@@ -45,12 +45,12 @@ behaviors:
     self_play: null
     behavioral_cloning: null
 env_settings:
-  env_path: null
+  env_path: Builds/StarshipEnvironment.exe
   env_args:
   - --timeout
   - '180'
   base_port: 5005
-  num_envs: 1
+  num_envs: 4
   num_areas: 1
   timeout_wait: 60
   seed: -1
@@ -64,7 +64,7 @@ engine_settings:
   time_scale: 20
   target_frame_rate: -1
   capture_frame_rate: 60
-  no_graphics: false
+  no_graphics: true
   no_graphics_monitor: false
 environment_parameters: null
 checkpoint_settings:
