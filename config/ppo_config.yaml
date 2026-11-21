@@ -2,23 +2,69 @@ behaviors:
   StarshipLander:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 4096
-      buffer_size: 81920
-      learning_rate: 0.00002
-      beta: 0.03       # Współczynnik entropii (zachęca do eksploracji)
-      epsilon: 0.1          # Margines obcięcia (PPO clip)
-      lambd: 0.95           # Współczynnik GAE (Generalized Advantage Estimation)
-      num_epoch: 3          # Liczba epok optymalizacji na jedną partię
+      batch_size: 2048
+      buffer_size: 40960
+      learning_rate: 2.5e-4
+      beta: 0.006
+      epsilon: 0.15
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: linear
+      beta_schedule: linear
+      epsilon_schedule: linear
     network_settings:
-      normalize: true       # Automatyczna normalizacja wektora 10 obserwacji
-      hidden_units: 128
+      normalize: true
+      hidden_units: 256
       num_layers: 2
     reward_signals:
       extrinsic:
-        gamma: 0.995         # Dyskonto przyszłych nagród
+        gamma: 0.995
         strength: 1.0
-    max_steps: 15000000  # Całkowity budżet kroków treningu
-    time_horizon: 256       # Horyzont zbierania trajektorii
-    summary_freq: 5000      # Częstotliwość zapisu statystyk do wykresów
+    max_steps: 10000000
+    time_horizon: 256
+    summary_freq: 20000
     keep_checkpoints: 20
-    checkpoint_interval: 50000
+    checkpoint_interval: 500000
+
+environment_parameters:
+  start_height:
+    curriculum:
+      - name: Lesson1_Easy
+        completion_criteria:
+          measure: reward
+          behavior: StarshipLander
+          signal_smoothing: true
+          min_lesson_length: 60
+          threshold: 50.0
+        value: 80.0
+      - name: Lesson2_Medium
+        completion_criteria:
+          measure: reward
+          behavior: StarshipLander
+          signal_smoothing: true
+          min_lesson_length: 80
+          threshold: 80.0
+        value: 120.0
+      - name: Lesson3_FullBellyFlop
+        value: 160.0
+
+  max_flip_angle:
+    curriculum:
+      - name: Lesson1_Easy
+        completion_criteria:
+          measure: reward
+          behavior: StarshipLander
+          signal_smoothing: true
+          min_lesson_length: 60
+          threshold: 50.0
+        value: 30.0
+      - name: Lesson2_Medium
+        completion_criteria:
+          measure: reward
+          behavior: StarshipLander
+          signal_smoothing: true
+          min_lesson_length: 80
+          threshold: 80.0
+        value: 60.0
+      - name: Lesson3_FullBellyFlop
+        value: 82.0

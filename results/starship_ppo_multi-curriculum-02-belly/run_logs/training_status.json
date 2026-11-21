@@ -1,0 +1,206 @@
+{
+    "start_height": {
+        "lesson_num": 1
+    },
+    "max_flip_angle": {
+        "lesson_num": 1
+    },
+    "StarshipLander": {
+        "checkpoints": [
+            {
+                "steps": 3599918,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-3599918.onnx",
+                "reward": -29.952111701832877,
+                "creation_time": 1795260953.7742953,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-3599918.pt"
+                ]
+            },
+            {
+                "steps": 3999762,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-3999762.onnx",
+                "reward": 18.705595450268852,
+                "creation_time": 1795261175.0367324,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-3999762.pt"
+                ]
+            },
+            {
+                "steps": 4399848,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-4399848.onnx",
+                "reward": -39.54761600494385,
+                "creation_time": 1795261397.3135786,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-4399848.pt"
+                ]
+            },
+            {
+                "steps": 4799893,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-4799893.onnx",
+                "reward": 7.809272434314092,
+                "creation_time": 1795261609.0861294,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-4799893.pt"
+                ]
+            },
+            {
+                "steps": 5199791,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5199791.onnx",
+                "reward": 46.20714778825641,
+                "creation_time": 1795261831.1446466,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5199791.pt"
+                ]
+            },
+            {
+                "steps": 5599885,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5599885.onnx",
+                "reward": 30.746617571512857,
+                "creation_time": 1795262052.8573241,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5599885.pt"
+                ]
+            },
+            {
+                "steps": 5999863,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5999863.onnx",
+                "reward": 45.928192051925826,
+                "creation_time": 1795262265.1895983,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-5999863.pt"
+                ]
+            },
+            {
+                "steps": 6399865,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-6399865.onnx",
+                "reward": 16.729419017308636,
+                "creation_time": 1795262493.5827508,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-6399865.pt"
+                ]
+            },
+            {
+                "steps": 6799998,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-6799998.onnx",
+                "reward": 18.680003198704892,
+                "creation_time": 1795262718.8269207,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-6799998.pt"
+                ]
+            },
+            {
+                "steps": 7199759,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7199759.onnx",
+                "reward": 16.25845466479659,
+                "creation_time": 1795262941.2398674,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7199759.pt"
+                ]
+            },
+            {
+                "steps": 7599778,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7599778.onnx",
+                "reward": 28.24432923847979,
+                "creation_time": 1795263153.4663558,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7599778.pt"
+                ]
+            },
+            {
+                "steps": 7999913,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7999913.onnx",
+                "reward": 10.307624411676079,
+                "creation_time": 1795263375.8941088,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-7999913.pt"
+                ]
+            },
+            {
+                "steps": 8000169,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8000169.onnx",
+                "reward": 10.307624411676079,
+                "creation_time": 1795263375.980734,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8000169.pt"
+                ]
+            },
+            {
+                "steps": 8399840,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8399840.onnx",
+                "reward": 39.4249492614877,
+                "creation_time": 1795263903.5950744,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8399840.pt"
+                ]
+            },
+            {
+                "steps": 8799763,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8799763.onnx",
+                "reward": 9.117320020532896,
+                "creation_time": 1795264132.7670927,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-8799763.pt"
+                ]
+            },
+            {
+                "steps": 9199916,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9199916.onnx",
+                "reward": 17.047421352006495,
+                "creation_time": 1795264356.5768878,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9199916.pt"
+                ]
+            },
+            {
+                "steps": 9599987,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9599987.onnx",
+                "reward": 37.36610481199229,
+                "creation_time": 1795264570.0043707,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9599987.pt"
+                ]
+            },
+            {
+                "steps": 9999780,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9999780.onnx",
+                "reward": 45.44548785971368,
+                "creation_time": 1795264792.7665565,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-9999780.pt"
+                ]
+            },
+            {
+                "steps": 10399931,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-10399931.onnx",
+                "reward": 0.647003230949243,
+                "creation_time": 1795265021.2564118,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-10399931.pt"
+                ]
+            },
+            {
+                "steps": 10426876,
+                "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-10426876.onnx",
+                "reward": -32.05257749557495,
+                "creation_time": 1795265040.8724806,
+                "auxillary_file_paths": [
+                    "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-10426876.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 10426876,
+            "file_path": "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander.onnx",
+            "reward": -32.05257749557495,
+            "creation_time": 1795265040.8724806,
+            "auxillary_file_paths": [
+                "results\\starship_ppo_multi-curriculum-02-belly\\StarshipLander\\StarshipLander-10426876.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.1.0",
+        "torch_version": "2.2.2+cpu"
+    }
+}

@@ -67,12 +67,19 @@ public class StarshipAgent : Agent
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
+        // Pobieranie parametrów z Curriculum Learning (gdy brak treningu, u¿ywa maxStartHeight i maxFlipAngle)
+        float curriculumHeight = Academy.Instance.EnvironmentParameters.GetWithDefault("start_height", maxStartHeight);
+        float curriculumAngle = Academy.Instance.EnvironmentParameters.GetWithDefault("max_flip_angle", maxFlipAngle);
+
+        float currentMinHeight = Mathf.Min(minStartHeight, curriculumHeight - 15f);
+        float currentMinAngle = Mathf.Min(minFlipAngle, Mathf.Max(0f, curriculumAngle - 15f));
+
         float startX = landingPad.position.x + Random.Range(-maxStartHorizontalOffset, maxStartHorizontalOffset);
-        float startY = landingPad.position.y + Random.Range(minStartHeight, maxStartHeight);
+        float startY = landingPad.position.y + Random.Range(currentMinHeight, curriculumHeight);
         transform.position = new Vector3(startX, startY, landingPad.position.z);
 
         float direction = Random.value > 0.5f ? 1f : -1f;
-        float startAngleZ = Random.Range(minFlipAngle, maxFlipAngle) * direction;
+        float startAngleZ = Random.Range(currentMinAngle, curriculumAngle) * direction;
         transform.rotation = Quaternion.Euler(0f, 0f, startAngleZ);
 
         rb.linearVelocity = new Vector3(Random.Range(-2f, 2f), -10f, 0f);
@@ -124,6 +131,11 @@ public class StarshipAgent : Agent
         rb.AddForceAtPosition(thrustDirection * (thrustFactor * maxThrust), enginePivot.position, ForceMode.Force);
 
         rb.AddTorque(Vector3.forward * (rcsInput * maxRcsTorque), ForceMode.Force);
+
+        // W OnActionReceived(ActionBuffers actions), tu¿ po AddTorque:
+        float bellyExposure = 1.0f - Mathf.Abs(transform.up.y); // 1.0 gdy le¿y poziomo, 0.0 gdy stoi pionowo
+        Vector3 aeroDrag = -rb.linearVelocity * (bellyExposure * 180f); // opór aerodynamiczny hamuj¹cy spadanie
+        rb.AddForce(aeroDrag, ForceMode.Force);
 
         fuel = Mathf.Max(0f, fuel - thrustFactor * FuelBurnRate);
         previousThrust = thrustFactor;
